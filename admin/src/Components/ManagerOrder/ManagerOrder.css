@@ -1,5 +1,5 @@
 .manager-order {
-  width: 100%;
+  flex-grow: 1;
 }
 .search-date-form {
   max-width: 400px;

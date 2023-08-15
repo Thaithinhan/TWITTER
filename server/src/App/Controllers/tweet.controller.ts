@@ -64,17 +64,24 @@ class TweetController {
     //GET ALL TWEET 
     static async getAllTweets(req: Request, res: Response) {
         try {
-            // Truy vấn lấy tweets
+            const page = parseInt(req.query.page as string) || 1;
+            const perPage: number = 10; // Số lượng tweets trên mỗi trang
+
+            const totalTweets = await TweetModel.countDocuments();
+            const totalPages = Math.ceil(totalTweets / perPage);
+
             const tweets = await TweetModel.find()
                 .sort({ createdAt: -1 })
-                .populate('author') // Lấy tất cả thông tin của người tạo tweet
+                .skip((page - 1) * perPage)
+                .limit(perPage)
+                .populate('author')
                 .exec();
-            res.status(200).json({ success: true, tweets });
+
+            res.status(200).json({ success: true, tweets, totalPages });
         } catch (error) {
             res.status(500).json({ success: false, message: error });
         }
     }
-
     //GET TWEET BY ID TWEET
     static async getTweetById(req: Request, res: Response) {
         try {
@@ -115,11 +122,10 @@ class TweetController {
         }
     }
 
-    // Delete Tweet by ID
+    // DELETE TWEET by ID
     static async deleteTweetById(req: Request, res: Response) {
         try {
             const tweetId = req.params.id; // Giả sử rằng ID của tweet được truyền qua route params như /tweets/:id
-
             const deletedTweet = await TweetModel.findByIdAndDelete(tweetId);
 
             if (!deletedTweet) {

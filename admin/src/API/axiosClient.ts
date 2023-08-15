@@ -39,6 +39,7 @@ BaseAxios.interceptors.request.use(
         let token = localStorage.getItem("accessToken") || "";
         try {
             token = JSON.parse(token);
+
         } catch (e) {
             console.log(e);
         }

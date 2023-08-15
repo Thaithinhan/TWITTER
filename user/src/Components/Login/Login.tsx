@@ -1,9 +1,11 @@
 import "./Login.css";
+import "react-toastify/dist/ReactToastify.css";
 
 import React, { ChangeEvent, FormEvent, useState } from "react";
 import GoogleButton from "react-google-button";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
 
 import { login } from "../../Redux/Reducer/userSlice";
 import { AppDispatch } from "../../Redux/Store/store";
@@ -21,10 +23,21 @@ const Login = () => {
   const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      await dispatch(login(inputValue)).unwrap();
-      window.location.href = "/home";
-      setInputValue({ email: "", password: "" });
+      const response = await dispatch(login(inputValue)).unwrap();
+      const { user } = response;
+      if (user.status) {
+        window.location.href = "/home";
+        setInputValue({ email: "", password: "" });
+      } else {
+        toast.error("Your account is blocked.", {
+          position: toast.POSITION.TOP_RIGHT,
+          autoClose: 3000,
+        });
+      }
     } catch (error) {
+      toast.error("Invalid email or password.", {
+        position: toast.POSITION.TOP_RIGHT,
+      });
       console.error("Login failed:", error);
       // Handle error: show a notification, set an error state, etc.
     }
@@ -32,6 +45,7 @@ const Login = () => {
 
   return (
     <div className="login">
+      <ToastContainer />
       <div className="login-top">
         <svg
           viewBox="0 0 24 24"

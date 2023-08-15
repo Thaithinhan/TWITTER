@@ -1,6 +1,7 @@
 .sidebar {
-  position: relative;
+  position: sticky;
   background-color: #1da1f2;
+  top: 0;
 }
 .sidebar .logout-button {
   position: absolute;

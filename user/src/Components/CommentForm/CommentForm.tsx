@@ -8,6 +8,7 @@ import { useLocation, useParams } from "react-router-dom";
 import { useTweets } from "../../Context/TweetContext";
 // import { useUser } from "../../Context/UserContext";
 import { ITweetLocal } from "../../Types/type";
+import { getRelevantTweets } from "../../Utils/commonFunction";
 import {
   createComment,
   fetchAllTweets,
@@ -64,6 +65,10 @@ const CommentForm: React.FC<{ onBlur: () => void; tweet: ITweetLocal }> = ({
       setImages([]);
       if (location.pathname === `/profile/${id}`) {
         const newTweets = await fetchTweetsByUserId(id as string);
+        setTweets(newTweets);
+        return;
+      } else if (location.pathname === `/home`) {
+        const newTweets = await getRelevantTweets();
         setTweets(newTweets);
         return;
       }

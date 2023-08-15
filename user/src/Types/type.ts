@@ -1,5 +1,6 @@
 export interface SearchList {
     searchWord: string;
+    setIsFocused(data: boolean): void;
 }
 
 export interface IUser {

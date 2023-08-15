@@ -9,7 +9,7 @@ const ManageOrder = () => {
   // ... (Phần code không thay đổi)
 
   return (
-    <div className="manager-order">
+    <div className="manager-order p-4">
       <h3 className="font-bold text-center my-3">MANAGEMENT VERIFY ORDER</h3>
       <form className="flex justify-between items-center mb-4 .search-date-form">
         <label className="flex items-center">

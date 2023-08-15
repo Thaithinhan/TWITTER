@@ -39,7 +39,7 @@ const Sidebar = () => {
           </Link>
         </li>
         <li>
-          <Link to="/manager-user" className="text-white hover:underline">
+          <Link to="/manager-tweets" className="text-white hover:underline">
             <FontAwesomeIcon
               icon={faSignsPost}
               className="me-2 text-white text-xl"
@@ -48,7 +48,13 @@ const Sidebar = () => {
           </Link>
         </li>
       </ul>
-      <button className="logout-button font-bold ">
+      <button
+        className="logout-button font-bold "
+        onClick={() => {
+          localStorage.removeItem("accessToken");
+          window.location.href = "/auth/login";
+        }}
+      >
         <FontAwesomeIcon icon={faSignOutAlt} /> Logout
       </button>
     </div>

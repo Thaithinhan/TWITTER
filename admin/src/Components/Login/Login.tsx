@@ -1,8 +1,12 @@
 import "./Login.css";
+import "react-toastify/dist/ReactToastify.css";
 
+import axios from "axios";
+import jwt_decode from "jwt-decode";
 import React, { ChangeEvent, FormEvent, useState } from "react";
-import GoogleButton from "react-google-button";
-import { Link } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+
+// import BaseAxios from "../../API/axiosClient";
 
 const Login = () => {
   const [inputValue, setInputValue] = useState({ email: "", password: "" });
@@ -13,12 +17,40 @@ const Login = () => {
     }));
   };
 
+  interface IDecodeToken {
+    userId?: string;
+    userRole?: number;
+  }
+
   const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    try {
+      const response = await axios.post(
+        "http://localhost:8000/api/v1/users/login",
+        inputValue
+      );
+      const { accessToken } = await response.data;
+      const decodedToken = jwt_decode(accessToken) as IDecodeToken;
+      if (decodedToken.userRole === 1) {
+        localStorage.setItem("accessToken", accessToken);
+        window.location.href = "/";
+      } else {
+        // Sử dụng react-toastify để hiển thị thông báo lỗi
+        toast.error("Access denied.", {
+          position: toast.POSITION.TOP_RIGHT,
+          autoClose: 3000,
+        });
+      }
+    } catch (error) {
+      toast.error("Invalid email or password.", {
+        position: toast.POSITION.TOP_RIGHT,
+      });
+    }
   };
 
   return (
     <div className="login">
+      <ToastContainer />
       <div className="login-top">
         <svg
           viewBox="0 0 24 24"
@@ -76,18 +108,6 @@ const Login = () => {
         </h5>
         <div className="line" />
       </div>
-
-      <GoogleButton className="google_btn" />
-
-      <h5>
-        Don't Have you account?
-        <Link
-          to={"/auth/register"}
-          className="signin_btn mx-1 text-blue-500 font-bold"
-        >
-          Register
-        </Link>
-      </h5>
     </div>
   );
 };

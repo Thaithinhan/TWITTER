@@ -22,18 +22,6 @@ const HomeComponent = () => {
     fetchTweet();
   }, [setTweets]);
 
-  useEffect(() => {
-    const fetchTweet = async () => {
-      try {
-        const data = await getRelevantTweets();
-        setTweets(data);
-      } catch (error) {
-        console.error("Failed to fetch tweets:", error);
-      }
-    };
-    fetchTweet();
-  }, [tweets]);
-
   const handleNewTweetPosted = async () => {
     try {
       const data = await getRelevantTweets();

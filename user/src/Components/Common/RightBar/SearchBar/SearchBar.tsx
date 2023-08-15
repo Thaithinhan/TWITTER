@@ -1,12 +1,19 @@
 import "./SearchBar.css";
 
-import React, { useState } from "react";
+import lodash from "lodash";
+import React, { useRef, useState } from "react";
 
 import SuggestionsList from "../SuggesttionList/SuggestionList";
 
 const SearchBar: React.FC = () => {
   const [searchWord, setSearchWord] = useState<string>("");
   const [isFocused, setIsFocused] = useState<boolean>(false);
+  const searchWordRef = useRef<string>("");
+
+  const delayedSearch = lodash.debounce((value: string) => {
+    setSearchWord(value);
+    searchWordRef.current = value;
+  }, 500); // Thời gian trì hoãn (milliseconds)
 
   return (
     <div className="search-bar">
@@ -14,9 +21,9 @@ const SearchBar: React.FC = () => {
         type="text"
         placeholder={searchWord ? "" : "Find people"}
         value={searchWord}
-        onChange={(e) => setSearchWord(e.target.value)}
+        onChange={(e) => delayedSearch(e.target.value)}
         onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
+        // onBlur={() => setIsFocused(false)}
         className={isFocused ? "focused  rounded-full" : " rounded-full"}
       />
       <span className="icon">
@@ -35,7 +42,9 @@ const SearchBar: React.FC = () => {
           ></path>
         </svg>
       </span>
-      {isFocused && <SuggestionsList searchWord={searchWord} />}
+      {isFocused && (
+        <SuggestionsList searchWord={searchWord} setIsFocused={setIsFocused} />
+      )}
     </div>
   );
 };

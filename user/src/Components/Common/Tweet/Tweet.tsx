@@ -41,9 +41,8 @@ const Tweet: React.FC<ITweetProps> = (props) => {
 
   //   //Hiển thị khi like
   // Step 1: Check if currentUser liked the tweet
-  const isLikedByCurrentUser =
-    tweet.likes?.some((like) => like === currentUser?._id) || false;
-  const [like, setLike] = useState(isLikedByCurrentUser);
+
+  const [like, setLike] = useState(false);
 
   // Step 2: useState for likes count
   const [likesCount, setLikesCount] = useState<number>(
@@ -61,7 +60,10 @@ const Tweet: React.FC<ITweetProps> = (props) => {
         (comments) => comments.length
       );
       setCommentCount(countsComment);
-      isLikedByCurrentUser;
+      const isLikedByCurrentUser = tweet.likes?.some(
+        (like) => like === currentUser?._id
+      );
+      setLike(isLikedByCurrentUser);
     };
     loading();
   }, [tweets]);
@@ -74,7 +76,6 @@ const Tweet: React.FC<ITweetProps> = (props) => {
     setLike(true);
     setLikesCount((prevCount) => prevCount + 1);
     await likeTweetById(tweetId);
-
     // Gửi sự kiện 'like' tới máy chủ
     // Ngay sau khi kết nối, gửi sự kiện 'user_connected'
     //   socket.on("connect", function () {
