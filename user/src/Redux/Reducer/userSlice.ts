@@ -4,7 +4,7 @@ import UserAPI, { LoginParams } from '../../API/userAPI';
 
 export const login = createAsyncThunk("loginFetch", async (params: LoginParams) => {
     const response = await UserAPI.login(params)
-    localStorage.setItem("accessToken", JSON.stringify(response.data.accessToken))
+    localStorage.setItem("accessToken", response.data.accessToken)
     localStorage.setItem("userLogin", JSON.stringify(response.data.user))
     return response.data
 })

@@ -1,7 +1,7 @@
 import "./Login.css";
 import "react-toastify/dist/ReactToastify.css";
 
-import React, { ChangeEvent, FormEvent, useState } from "react";
+import React, { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import GoogleButton from "react-google-button";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
@@ -19,6 +19,11 @@ const Login = () => {
       [e.target.name]: e.target.value,
     }));
   };
+
+  useEffect(() => {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("userLogin");
+  }, []);
 
   const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();

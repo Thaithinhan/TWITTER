@@ -4,9 +4,11 @@ import jwt from 'jsonwebtoken';
 
 import UserModel from '../models/user.schemas';
 import { IUser, UploadFiles } from '../Types/type';
+import sendRegistrationEmail from '../Utils/mailer';
 
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY || "";
 const JWT_SECRET_KEY_REFRESH_TOKEN = process.env.JWT_SECRET_KEY_REFRESH_TOKEN || "";
+let refreshTokenArr: any[] = []
 
 class UserController {
 
@@ -17,7 +19,8 @@ class UserController {
             const user = new UserModel({
                 ...req.body, password: hashPassword
             })
-            await user.save()
+            const newUser = await user.save()
+            await sendRegistrationEmail(newUser)
             const users = await UserModel.find()
             return res.status(201).send({ message: "Registered successfully", users: users });
         } catch (error) {
@@ -43,7 +46,7 @@ class UserController {
                     userRole: user.role
                 },
                 JWT_SECRET_KEY,
-                { expiresIn: '2h' } // Hạn dùng của token
+                { expiresIn: '30s' } // Hạn dùng của token
             );
             const refreshToken = jwt.sign(
                 {
@@ -55,44 +58,61 @@ class UserController {
             );
             res.cookie('refreshToken', refreshToken, {
                 httpOnly: true,
-                maxAge: 7 * 24 * 60 * 60 * 1000, // Hạn dùng của cookie, 7 ngày
-                // secure: true, // Chỉ gửi cookie qua HTTPS
+                secure: true, // Chỉ gửi cookie qua HTTPS
                 sameSite: 'none' // Để làm việc với các domain khác (cross-site)
             });
+            refreshTokenArr.push(refreshToken) // push refresh token vào 1 mảng để lưu trữ
             // Loại bỏ trường password trước khi gửi user
             const userResponse: Partial<IUser> = user.toObject()
             delete userResponse.password
             return res.status(200).send({ accessToken, user: userResponse });
         } catch (error) {
             console.log('login', error);
-
         }
-
     }
     // CREATE NEW ACCESS TOKEN
     static createNewAccessToken(req: Request, res: Response) {
         const refreshToken = req.cookies.refreshToken;
+        console.log(1111111111, refreshToken);
 
         if (!refreshToken) {
             return res.status(401).send({ error: 'Refresh token not found.' });
         }
-        jwt.verify(refreshToken, JWT_SECRET_KEY, (err: any, decoded: any) => {
+        if (!refreshTokenArr.includes(refreshToken)) {
+            return res.status(401).json("Unauthenticated")
+        }
+        jwt.verify(refreshToken, JWT_SECRET_KEY_REFRESH_TOKEN, (err: any, decoded: any) => {
             if (err) {
                 return res.status(403).send({ error: 'Invalid refresh token.' });
             }
-            const accessToken = jwt.sign(
+            const { iat, exp, ...userOther } = decoded
+            console.log(decoded);
+            refreshTokenArr = refreshTokenArr.filter(token => token !== refreshToken) //lọc ra những thằng cũ, nếu đúng thì nó sẽ tạo accessToken mới và cả refreshToken mới
+            const newAccessToken = jwt.sign(
                 {
                     userId: decoded.userId,
                     userRole: decoded.userRole
                 },
                 JWT_SECRET_KEY,
-                { expiresIn: '2h' } // Hạn dùng của Access Token
+                { expiresIn: '30s' } // Hạn dùng của Access Token
             );
-
-            return res.send({ accessToken });
+            const newRefreshToken = jwt.sign(
+                {
+                    userId: decoded.userId,
+                    userRole: decoded.userRole
+                },
+                JWT_SECRET_KEY_REFRESH_TOKEN,
+                { expiresIn: '7d' } // Hạn dùng của Access Token
+            );
+            refreshTokenArr.push(newRefreshToken)
+            res.cookie("refreshToken", newRefreshToken, { //Lưu NewrefreshToken vào cookie khi reset thành công 
+                httpOnly: true,
+                secure: true,
+                sameSite: "none"
+            })
+            return res.status(200).json(newAccessToken);
         });
     }
-
     //GET ALL USERS 
     static async getAllUsers(req: Request, res: Response) {
         try {

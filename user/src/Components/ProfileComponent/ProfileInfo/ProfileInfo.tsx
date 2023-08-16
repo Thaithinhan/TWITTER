@@ -1,10 +1,10 @@
 import "./ProfileInfo.css";
 
-import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { VscVerifiedFilled } from "react-icons/vsc";
 import { useParams } from "react-router-dom";
 
+import BaseAxios from "../../../API/axiosConfig";
 import { useFollowers } from "../../../Context/FollowersContext";
 import { useUser } from "../../../Context/UserContext";
 import { IUser } from "../../../Types/type";
@@ -34,30 +34,23 @@ const ProfileInfo: React.FC = () => {
 
   useEffect(() => {
     if (userLogin) {
-      axios
-        .get(`http://localhost:8000/api/v1/follow/following/${userLogin._id}`)
-        .then((response) => {
+      BaseAxios.get(`/api/v1/follow/following/${userLogin._id}`).then(
+        (response) => {
           setCurrentUserFollowings(response.data);
-        });
+        }
+      );
     }
   }, []);
 
   useEffect(() => {
     // Kiểm tra nếu userLogin có giá trị và ID trên URL khác với userLogin
-    let token = localStorage.getItem("accessToken") || "";
-    token = JSON.parse(token);
+
     if (userLogin && userLogin._id !== id) {
       // Gửi yêu cầu lên server để kiểm tra xem userLogin có follow user có ID như trên URL không.
-      axios
-        .get(`http://localhost:8000/api/v1/follow/checkFollow/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        .then((response) => {
-          // Dựa vào kết quả trả về từ server, set giá trị của setIsFollow
-          setIsFollow(response.data.isFollowing);
-        });
+      BaseAxios.get(`/api/v1/follow/checkFollow/${id}`).then((response) => {
+        // Dựa vào kết quả trả về từ server, set giá trị của setIsFollow
+        setIsFollow(response.data.isFollowing);
+      });
     }
   }, [userLogin, id]);
 
@@ -67,45 +60,22 @@ const ProfileInfo: React.FC = () => {
     }
     return setIsFollow(false);
   }, [id, userLogin]);
-
   const handleFollowing = (userToFollow: IUser | null) => {
-    let token = localStorage.getItem("accessToken") || "";
-    token = JSON.parse(token);
     if (userToFollow && userLogin) {
-      axios
-        .post(
-          "http://localhost:8000/api/v1/follow/follow-user",
-          {
-            userIdToFollow: userToFollow._id,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        )
-        .then(() => {
-          // Cập nhật danh sách người theo dõi của người dùng hiện tại
-          setCurrentUserFollowings((prevState) => [...prevState, userToFollow]);
-          setFollowers([...followers, userLogin]);
-        });
+      BaseAxios.post("/api/v1/follow/follow-user", {
+        userIdToFollow: userToFollow._id,
+      }).then(() => {
+        // Cập nhật danh sách người theo dõi của người dùng hiện tại
+        setCurrentUserFollowings((prevState) => [...prevState, userToFollow]);
+        setFollowers([...followers, userLogin]);
+      });
     }
     setIsFollow(true);
   };
 
   const handleUnFollowing = (userToUnfollow: IUser | null) => {
-    let token = localStorage.getItem("accessToken") || "";
-    token = JSON.parse(token);
     if (userToUnfollow && userLogin) {
-      axios
-        .delete(
-          `http://localhost:8000/api/v1/follow/unfollow-user/${userToUnfollow._id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        )
+      BaseAxios.delete(`/api/v1/follow/unfollow-user/${userToUnfollow._id}`)
         .then(() => {
           setCurrentUserFollowings((prevState) =>
             prevState.filter((user) => user._id !== userToUnfollow._id)

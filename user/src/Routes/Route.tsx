@@ -3,6 +3,7 @@ import { Route, Routes } from "react-router-dom";
 
 import Login from "../Components/Login/Login";
 import Register from "../Components/Register/Register";
+import RequireAuth from "../Components/RequireAuth/RequireAuth";
 import Auth from "../Layouts/Auth/Auth";
 import Home from "../Layouts/Home/Home";
 import MessagesLayout from "../Layouts/Messages/Messages";
@@ -19,11 +20,22 @@ const Router = () => {
         <Route path="register" element={<Register />} />
       </Route>
       <Route path="*" element={<NotFound />} />
-      <Route path="/home" element={<Home />} />
-      <Route path="/post-detail/:id" element={<TweetDetail />} />{" "}
-      <Route path="/notifications" element={<Notification />} />
-      <Route path="/profile/:id" element={<Profile />} />
-      <Route path="/messages" element={<MessagesLayout />} />
+      <Route element={<RequireAuth />}>
+        <Route path="/home" element={<Home />} />
+      </Route>
+      <Route element={<RequireAuth />}>
+        <Route path="/post-detail/:id" element={<TweetDetail />} />
+      </Route>
+      <Route element={<RequireAuth />}>
+        <Route path="/notifications" element={<Notification />} />
+      </Route>
+      <Route element={<RequireAuth />}>
+        <Route path="/profile/:id" element={<Profile />} />
+      </Route>
+      <Route element={<RequireAuth />}>
+        <Route path="/messages" element={<MessagesLayout />} />
+      </Route>
+
       <Route path="/" element={<Login />} />
     </Routes>
   );

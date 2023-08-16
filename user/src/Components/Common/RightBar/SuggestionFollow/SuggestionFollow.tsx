@@ -17,8 +17,7 @@ const SuggestionFollow: React.FC = () => {
   const { id } = useParams();
 
   useEffect(() => {
-    let token = localStorage.getItem("accessToken") || "";
-    token = JSON.parse(token);
+    const token = localStorage.getItem("accessToken") || "";
 
     // Lấy danh sách gợi ý từ server
     axios
@@ -34,8 +33,8 @@ const SuggestionFollow: React.FC = () => {
   }, []);
 
   const handleFollow = (userIdToFollow: string) => {
-    let token = localStorage.getItem("accessToken") || "";
-    token = JSON.parse(token);
+    const token = localStorage.getItem("accessToken") || "";
+
     axios
       .post(
         "http://localhost:8000/api/v1/follow/follow-user",

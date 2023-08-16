@@ -69,7 +69,7 @@ export const authenticateJWT = (req: Request, res: Response, next: NextFunction)
     const token = authHeader && authHeader.split(' ')[1] || ""
 
     jwt.verify(token, JWT_SECRET_KEY, (err, decoded) => {
-        // console.log("token abc", token)
+        console.log("token abc", token)
         if (!token) {
             return res.status(401).json({ error: 'Access token not found' });
         }

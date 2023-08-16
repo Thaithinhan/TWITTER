@@ -1,4 +1,5 @@
 import bodyParser from 'body-parser';
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
@@ -13,6 +14,7 @@ import userRouter from './routes/user.router';
 const app = express();
 
 // Middlewares
+app.use(cookieParser())
 const staticPath = path.join(__dirname, '../../public');
 app.use(express.static(staticPath));
 
@@ -23,6 +25,7 @@ app.use(cors({
     optionsSuccessStatus: 200
 }));
 app.use(morgan("dev"));
+
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
