@@ -1,17 +1,19 @@
 import "./NotificationComponent.css";
 
 import moment from "moment";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
+import BaseAxios from "../../API/axiosConfig";
 import { Images } from "../../Assets/images";
+import { INotification } from "../../Types/type";
 
 const NotificationComponent = () => {
   const [activeTab, setActiveTab] = useState("All");
-  //   const [notifications, setNotifications] = useState([]);
   const handleTabClick = (tab: string) => {
     setActiveTab(tab);
   };
+  const [notifications, setNotifications] = useState<INotification[]>([]);
 
   // Hàm hỗ trợ để định dạng thời gian đăng bài post
   const formatTimestamp = (timestamp: string | Date): string => {
@@ -26,6 +28,22 @@ const NotificationComponent = () => {
       return date.format("DD/MM/YYYY"); // Hiển thị dưới dạng "ngày/tháng"
     }
   };
+
+  const fetchNotifications = async () => {
+    try {
+      const response = await BaseAxios.get("/api/v1/notifications"); // Đổi đường dẫn API tới địa chỉ phù hợp
+      const { notifications } = response.data;
+      setNotifications(notifications);
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
+
+  // console.log(notifications);
 
   return (
     <div className="notifications-container border border-gray">
@@ -51,44 +69,44 @@ const NotificationComponent = () => {
         </div>
       </div>
 
-      {/* {notifications.map((noti) => ( */}
-      <div className="notification">
-        {/* {noti.type === "like" ? ( */}
-        <>
-          <Link to={`/profile/id`} className="avatar">
-            <img src={Images.Notfound} alt="Avatar" />
-          </Link>
-          <div className="notification-content">
-            <Link to={`/profile/id`} className="header nav-link">
-              <span className="fullname">Thái Thị Nhàn</span>{" "}
-              <span className="username">@NhanThai</span>
-              <span className="date">{formatTimestamp(new Date())}</span>
-            </Link>
-            <div className="content">
-              {/* {noti.type} */}
-              <Link to={`/post-detail/id`} className="mx-2">
-                your tweet
-              </Link>
-            </div>
+      {notifications.length > 0 &&
+        notifications.map((notification, index) => (
+          <div className="notification" key={index}>
+            <>
+              <div className="flex items-center me-4">
+                <Link
+                  to={`/profile/${notification.senderId._id}`}
+                  className="avatar"
+                >
+                  <img src={notification.senderId.avatar} alt="Avatar" />
+                </Link>
+                <Link to={`/profile/${notification.senderId._id}`}>
+                  <span className="fullname">
+                    {notification.senderId.fullname}
+                  </span>
+                  <p className="username text-gray-400 font-bold text-sm">
+                    @{notification.senderId.username}
+                  </p>
+                  <span className="date">
+                    {formatTimestamp(notification.createdAt)}
+                  </span>
+                </Link>
+              </div>
+
+              <div className="notification-content">
+                <div className="content font-medium">
+                  <Link
+                    to={`/post-detail/${notification.tweetId}`}
+                    className="mx-2"
+                  >
+                    {notification.type == "like" ? "Liked" : "Replied"} your
+                    tweet
+                  </Link>
+                </div>
+              </div>
+            </>
           </div>
-        </>
-        {/* ) : ( */}
-        {/* <>
-          <div className="avatar">
-            <img
-              src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Logo_of_Twitter.svg/512px-Logo_of_Twitter.svg.png?20220821125553"
-              alt="Avatar"
-            />
-          </div>
-          <div className="notification-content">
-            <div className="content">
-              You Registered Twitter Successfully !!!
-            </div>
-          </div>
-        </> */}
-        {/* )} */}
-      </div>
-      {/* ))} */}
+        ))}
     </div>
   );
 };

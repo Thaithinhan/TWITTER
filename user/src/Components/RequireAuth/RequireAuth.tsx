@@ -12,7 +12,7 @@ const RequireAuth = () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const token: any = localStorage.getItem("accessToken");
   // lấy token từ localStorage về JSON.parse(...)
-  console.log(token);
+  // console.log(token);
 
   const [exp, setExp] = useState(false); //set trạng thái để hiện popup hết phiên đăng nhập
   const navigate = useNavigate();
@@ -23,7 +23,7 @@ const RequireAuth = () => {
       if (decode && decode.exp > date.getTime() / 1000) {
         //néu token còn hạng thì chỉ chuyển hướng trang vào outlet
         setExp(false);
-        console.log(1111, decode);
+        // console.log(1111, decode);
       } else {
         // nếu hết hạng thì hiện popup thông báo hết phiên
         setExp(true);

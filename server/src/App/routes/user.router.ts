@@ -20,6 +20,7 @@ userRouter.get('/:id', authenticateJWT, UserController.getUserById); //Get user 
 userRouter.post("/", checkEmailExits, validateRequiredUserBodyFields, UserController.registerUser)
 //LOGIN 
 userRouter.post("/login", UserController.login)
+userRouter.post("/logout", UserController.logout)
 //MAKE NEW ACCESSTOKEN
 userRouter.post('/refresh-token', UserController.createNewAccessToken);
 //UPDATE USER 

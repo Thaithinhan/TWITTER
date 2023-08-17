@@ -30,6 +30,7 @@ class UserController {
     //LOGIN USER 
     static async login(req: Request, res: Response) {
         const { email, password } = req.body
+        console.log(email, password)
         // Check user is already existing
         try {
             const user = await UserModel.findOne({ email });
@@ -46,7 +47,7 @@ class UserController {
                     userRole: user.role
                 },
                 JWT_SECRET_KEY,
-                { expiresIn: '30s' } // Hạn dùng của token
+                { expiresIn: '2d' } // Hạn dùng của token
             );
             const refreshToken = jwt.sign(
                 {
@@ -73,7 +74,6 @@ class UserController {
     // CREATE NEW ACCESS TOKEN
     static createNewAccessToken(req: Request, res: Response) {
         const refreshToken = req.cookies.refreshToken;
-        console.log(1111111111, refreshToken);
 
         if (!refreshToken) {
             return res.status(401).send({ error: 'Refresh token not found.' });
@@ -94,7 +94,7 @@ class UserController {
                     userRole: decoded.userRole
                 },
                 JWT_SECRET_KEY,
-                { expiresIn: '30s' } // Hạn dùng của Access Token
+                { expiresIn: '2d' } // Hạn dùng của Access Token
             );
             const newRefreshToken = jwt.sign(
                 {
@@ -277,6 +277,13 @@ class UserController {
             console.log(error);
             return res.status(500).send({ error: 'Server error.' });
         }
+    }
+    static async logout(req: Request, res: Response) {
+        res.clearCookie("refreshToken");
+        refreshTokenArr = refreshTokenArr.filter(
+            (token) => token !== req.cookies.refreshToken
+        );
+        res.status(200).json("Logout successfully");
     }
 }
 export default UserController

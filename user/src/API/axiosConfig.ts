@@ -9,13 +9,14 @@ const BaseAxios = axios.create({
     //     Accept: "application/json",
     // },
 });
+BaseAxios.defaults.withCredentials = true;
 axios.defaults.withCredentials = true
 const refreshToken = async () => {
     try {
         const res = await axios.post("http://localhost:8000/api/v1/users/refresh-token", {
             withCredentials: true
         })
-        console.log(res.data);
+        // console.log(res.data);
         localStorage.setItem("accessToken", res.data);
         return res.data
     } catch (error) {
@@ -23,7 +24,6 @@ const refreshToken = async () => {
     }
 }
 
-BaseAxios.defaults.withCredentials = true;
 
 BaseAxios.interceptors.request.use(
     async (config) => {
@@ -32,8 +32,7 @@ BaseAxios.interceptors.request.use(
             const date = new Date() //Tạo ngày giờ hiện tại kiểm tra
             const decodedTokenRaw = jwtDecode(token);
             const decodedToken = decodedTokenRaw as { exp: number };
-            console.log(decodedToken);
-
+            // console.log(decodedToken);
             if (decodedToken.exp < date.getTime() / 1000) {
                 const newToken = await refreshToken();
                 console.log(newToken);

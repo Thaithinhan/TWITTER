@@ -10,6 +10,7 @@ import MessagesLayout from "../Layouts/Messages/Messages";
 import Notification from "../Layouts/Notifications/Notification";
 import Profile from "../Layouts/Profile/Profile";
 import TweetDetail from "../Layouts/TweetDetail/TweetDetail";
+import Verify from "../Layouts/Verify/Verify";
 import NotFound from "../Pages/Notfound/NotFound";
 
 const Router = () => {
@@ -34,6 +35,9 @@ const Router = () => {
       </Route>
       <Route element={<RequireAuth />}>
         <Route path="/messages" element={<MessagesLayout />} />
+      </Route>
+      <Route element={<RequireAuth />}>
+        <Route path="/verify" element={<Verify />} />
       </Route>
 
       <Route path="/" element={<Login />} />

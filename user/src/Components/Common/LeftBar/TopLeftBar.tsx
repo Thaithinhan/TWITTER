@@ -1,8 +1,9 @@
 import "./TopLeftBar.css";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { LuVerified } from "react-icons/lu";
 import { Link } from "react-router-dom";
+import { io } from "socket.io-client";
 
 import BookmarksOutlinedIcon from "@mui/icons-material/BookmarksOutlined";
 import ForumOutlinedIcon from "@mui/icons-material/ForumOutlined";
@@ -11,13 +12,38 @@ import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNone
 import PermIdentityOutlinedIcon from "@mui/icons-material/PermIdentityOutlined";
 
 import { useTweets } from "../../../Context/TweetContext";
-import { useUser } from "../../../Context/UserContext";
 import { fetchTweetsByUserId } from "../../../Utils/TweetFunction";
 
 const TopLeftBar = () => {
-  const { user: userLogin } = useUser();
+  const userLogin = JSON.parse(localStorage.getItem("userLogin"));
   const { resetTweets, setTweets } = useTweets();
+  const [notificationCount, setNotificationCount] = useState(0);
 
+  useEffect(() => {
+    const socket = io("http://localhost:8000");
+
+    socket.on("connect", () => {
+      console.log("Connected to server", socket.id);
+    });
+
+    // Thay đổi địa chỉ máy chủ của bạn
+    socket.on("notification", (data) => {
+      console.log("data socket", data.data.senderId);
+      console.log("curent", userLogin?._id);
+
+      if (userLogin?._id !== data.data.senderId) {
+        setNotificationCount((prevCount) => prevCount + 1);
+      }
+    });
+
+    socket.on("disconnect", () => {
+      console.log("Disconnected from server", socket.id);
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
   return (
     <div className="top-sidebar">
       <div className="logo-image">
@@ -38,7 +64,7 @@ const TopLeftBar = () => {
         <li className="menu-item-sidebar active">
           <Link to={"/home"} className="menu ">
             <HomeIcon className="icon-menu" />{" "}
-            <span className="menu-title"> Home</span>
+            <span className="menu-title">Home</span>
           </Link>
         </li>
         <li className="menu-item-sidebar">
@@ -47,25 +73,25 @@ const TopLeftBar = () => {
             className="menu"
             // onClick={handleNotificationClick}
           >
-            <NotificationsNoneOutlinedIcon className="icon-menu" />{" "}
-            <span className="menu-title"> Notifications</span>
-            <span className="notification-badge"></span>
+            <NotificationsNoneOutlinedIcon className="icon-menu" />
+            <span className="menu-title">Notifications</span>
+            <span className="notification-badge">{notificationCount}</span>
           </Link>
         </li>
         <li className="menu-item-sidebar">
           <Link to={"/messages"} className="menu ">
-            <ForumOutlinedIcon className="icon-menu" />{" "}
+            <ForumOutlinedIcon className="icon-menu" />
             <span className="menu-title"> Messages</span>
           </Link>
         </li>
         <li className="menu-item-sidebar">
           <Link to={"/bookmarks"} className="menu ">
-            <BookmarksOutlinedIcon className="icon-menu" />{" "}
+            <BookmarksOutlinedIcon className="icon-menu" />
             <span className="menu-title"> Bookmarks</span>
           </Link>
         </li>
         <li className="menu-item-sidebar">
-          <Link to={`/verify/id`} className="menu ">
+          <Link to={`/verify`} className="menu ">
             <LuVerified className="icon-menu" />{" "}
             <span className="menu-title">Verify</span>
           </Link>

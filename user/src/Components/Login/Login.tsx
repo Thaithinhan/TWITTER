@@ -7,6 +7,7 @@ import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 
+import BaseAxios from "../../API/axiosConfig";
 import { login } from "../../Redux/Reducer/userSlice";
 import { AppDispatch } from "../../Redux/Store/store";
 
@@ -19,12 +20,19 @@ const Login = () => {
       [e.target.name]: e.target.value,
     }));
   };
+  const token = localStorage.getItem("accessToken");
 
   useEffect(() => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("userLogin");
+    if (token) {
+      BaseAxios.post(`/api/v1/users/logout`)
+        .then(() => {
+          localStorage.removeItem("accessToken");
+          localStorage.removeItem("userLogin");
+          document.cookie = `refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+        })
+        .catch((err) => console.log(err));
+    }
   }, []);
-
   const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {

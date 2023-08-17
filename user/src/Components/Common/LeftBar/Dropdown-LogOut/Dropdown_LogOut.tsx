@@ -10,8 +10,6 @@ import { IDropdownBottomLefBar } from "../../../../Types/type";
 function Dropdown_LogOut({ currentUser }: IDropdownBottomLefBar) {
   const handleLogout = () => {
     // 1. Xoá JWT khỏi localStorage (hoặc sessionStorage/cookies tùy theo bạn lưu ở đâu)
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("userLogin");
     window.location.href = "/";
   };
 

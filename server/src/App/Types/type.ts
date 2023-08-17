@@ -43,3 +43,11 @@ export interface ITweet extends Document {
     medias?: string[] | null;
     likes: ObjectId[];
 }
+
+//TYPE NOTIFICATION 
+export interface INotification extends Document {
+    senderId: ObjectId;
+    receiverId: ObjectId;
+    type: 'like' | 'comment'; // Loại thông báo
+    tweetId: ObjectId; // ID của tweet liên quan
+}

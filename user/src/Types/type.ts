@@ -80,3 +80,10 @@ export interface IDropdownTweetProps {
     tweetAuthorId: string;
     tweetId: string
 }
+
+export interface INotification {
+    senderId: string;
+    receiverId: string;
+    type: 'like' | 'comment'; // Loại thông báo
+    tweetId: string; // ID của tweet liên quan
+}

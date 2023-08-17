@@ -7,7 +7,7 @@ export type LoginParams = {
 
 class UserAPI {
     static login(param: LoginParams) {
-        const url = `/api/v1/users/login/`;
+        const url = `/api/v1/users/login`;
         return axiosClient.post(url, param);
     }
 

@@ -2,6 +2,7 @@ import e, { Request, Response } from 'express';
 import mongoose, { Types } from 'mongoose';
 
 import FollowModel from '../models/follow.schemas';
+import NotificationModel from '../models/notification.schemas';
 import TweetModel from '../models/tweet.schemas';
 import UserModel from '../models/user.schemas';
 
@@ -193,6 +194,25 @@ class TweetController {
                 tweet.likes.push(userId);
                 await tweet.save();
             }
+            //XỬ LÝ SOCKET 
+            // Kiểm tra xem người dùng có tự like bài viết của mình không
+            if (userId.toString() !== tweet.author.toString()) {
+                //XỬ LÝ SOCKET 
+                // Tạo thông báo và lưu vào cơ sở dữ liệu
+                const newNotification: any = await NotificationModel.create({
+                    senderId: userId, // Người thích bài tweet
+                    receiverId: tweet.author, // Người tạo bài tweet
+                    type: 'like', // Loại thông báo là "like"
+                    tweetId: tweet._id, // ID của bài tweet
+                });
+                // Thêm thông báo notifications database
+                await newNotification.save();
+
+                // Gửi thông báo tới người tạo tweet qua socket.io
+                const io = req.app.get('socketio');
+                io.emit('notification', { receiverId: tweet?.author, data: newNotification })
+            }
+
             res.status(200).json({ success: true, message: "Liked successfully" });
         } catch (error) {
             console.log(error);
@@ -206,7 +226,7 @@ class TweetController {
             const userId: any = req.userId;
 
             const tweet = await TweetModel.findById(tweetId);
-            console.log(tweet?.likes);
+            // console.log(tweet?.likes);
             if (!tweet) {
                 return res.status(404).json({ success: false, message: "Tweet not found" });
             }
@@ -258,7 +278,6 @@ class TweetController {
                 const images: Express.Multer.File[] = req.files as Express.Multer.File[];
                 mediaUrls = images.map(file => file.path);
             }
-
             const newComment = await TweetModel.create({
                 content,
                 medias: mediaUrls,
@@ -266,6 +285,22 @@ class TweetController {
                 type: 'comment',
                 parentId
             });
+            await newComment.save();
+            // Kiểm tra xem người dùng có tự comment bài viết của mình không
+            if (author?.toString() !== parentTweet.author.toString()) {
+                // Tạo thông báo Socket và lưu vào cơ sở dữ liệu
+                const newNotification = await NotificationModel.create({
+                    senderId: author, // Người bình luận
+                    receiverId: parentTweet.author, // Người tạo bài tweet gốc
+                    type: 'comment', // Loại thông báo là "comment"
+                    tweetId: parentTweet._id, // ID của bài tweet gốc
+                });
+                // Thêm thông báo vào comment vào cơ sở dữ liệu
+                await newNotification.save();
+                // Gửi thông báo tới người tạo tweet gốc qua socket.io
+                const io = req.app.get('socketio');
+                io.emit('notification', { receiverId: newComment?.author, data: newNotification })
+            }
             res.status(200).json({ success: true, newComment });
         } catch (error) {
             console.log(error);
