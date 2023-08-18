@@ -36,7 +36,7 @@ const ManageUser = () => {
   }, []);
 
   return (
-    <div className="manager-order p-4">
+    <div className="manager-user p-4">
       <h3 className="font-bold text-center my-3">MANAGEMENT USER</h3>
 
       <table className="min-w-full border-t border-gray-200 divide-y divide-gray-200">

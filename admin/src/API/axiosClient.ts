@@ -1,7 +1,6 @@
 
 import axios from 'axios';
-
-// import jwt_decode, { JwtPayload } from 'jwt-decode'; // Import jwt_decode
+import jwtDecode from 'jwt-decode'; // Import jwt_decode
 
 const BaseAxios = axios.create({
     baseURL: "http://localhost:8000",
@@ -11,39 +10,41 @@ const BaseAxios = axios.create({
     // },
 });
 BaseAxios.defaults.withCredentials = true;
+axios.defaults.withCredentials = true
+const refreshToken = async () => {
+    try {
+        const res = await axios.post("http://localhost:8000/api/v1/users/refresh-token", {
+            withCredentials: true
+        })
+        // console.log(res.data);
+        localStorage.setItem("accessToken", res.data);
+        return res.data
+    } catch (error) {
+        console.log(error);
+    }
+}
 
-// function isAccessTokenExpired() {
-//     let token = localStorage.getItem("accessToken") as string;
-//     token = JSON.parse(token);
-//     if (token) {
-//         const decodedToken = jwt_decode<JwtPayload>(token);
-//         const currentTime = Date.now() / 1000;
-//         // Kiểm tra trường exp trước khi sử dụng
-//         return decodedToken.exp !== undefined && decodedToken.exp < currentTime;
-//     }
-//     return true;
-// }
 
 BaseAxios.interceptors.request.use(
     async (config) => {
-        // if (isAccessTokenExpired()) {
-        //     // Gọi API để lấy Access Token mới từ Refresh Token
-        //     try {
-        //         const response = await BaseAxios.post('/api/v1/users/refresh-token');
-        //         const newAccessToken = response.data.accessToken;
-        //         localStorage.setItem('accessToken', JSON.stringify(newAccessToken));
-        //     } catch (error) {
-        //         console.log('Failed to refresh access token:', error);
-        //     }
-        // }
         let token = localStorage.getItem("accessToken") || "";
         try {
-            token = JSON.parse(token);
+            const date = new Date() //Tạo ngày giờ hiện tại kiểm tra
+            const decodedTokenRaw = jwtDecode(token);
+            const decodedToken = decodedTokenRaw as { exp: number };
+            // console.log(decodedToken);
+            if (decodedToken.exp < date.getTime() / 1000) {
+                const newToken = await refreshToken();
+                console.log(newToken);
+
+                token = newToken;
+            }
 
         } catch (e) {
             console.log(e);
         }
         if (token !== null) config.headers.Authorization = `Bearer ${token}`;
+
         return config;
     },
     (error) => {

@@ -76,6 +76,10 @@
   text-align: left;
 }
 
+.register .register-form .form-group p.error {
+  max-width: 100%;
+}
+
 .register .signin_btn {
   font-size: 16px;
   text-decoration: none;

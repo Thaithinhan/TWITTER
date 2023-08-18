@@ -6,7 +6,6 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 import {
-  faReceipt,
   faSignOutAlt,
   faSignsPost,
   faUserGear,
@@ -20,7 +19,7 @@ const Sidebar = () => {
     "
     >
       <ul className="space-y-2">
-        <li>
+        {/* <li>
           <Link to="/" className="text-white hover:underline">
             <FontAwesomeIcon
               icon={faReceipt}
@@ -28,9 +27,9 @@ const Sidebar = () => {
             />{" "}
             Manager Order
           </Link>
-        </li>
+        </li> */}
         <li>
-          <Link to="/manager-user" className="text-white hover:underline">
+          <Link to="/" className="text-white hover:underline">
             <FontAwesomeIcon
               icon={faUserGear}
               className="me-2 text-white text-xl"

@@ -11,6 +11,12 @@ const Register = () => {
     email: "",
     password: "",
   });
+  const [errorShow, setErrorShow] = useState({
+    errorEmail: "",
+    errorPassword: "",
+    errorFullname: "",
+    errorUsername: "",
+  });
 
   const handleInput = (e: ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -32,9 +38,15 @@ const Register = () => {
       // setMessage(response.data.message); // Set thông báo thành công
       // Chuyển hướng người dùng nếu cần
       window.location.href = "/";
-    } catch (error) {
+    } catch (error: {
+      errorEmail?: string;
+      errorPassword?: string;
+      errorFullname?: string;
+      errorUsername?: string;
+    }) {
       // Ví dụ: hiển thị thông báo lỗi từ server
       console.log(error);
+      setErrorShow(error.response.data);
     }
   };
 
@@ -96,7 +108,9 @@ const Register = () => {
           <label htmlFor="reg-email">
             Email <sup className="text-danger">*</sup>
           </label>
-          <p className="text-danger fw-bold"></p>
+          <p className="text-red-500 fw-bold w-full error-email error">
+            {errorShow.errorEmail}
+          </p>
         </div>
         <div className="form-group">
           <input

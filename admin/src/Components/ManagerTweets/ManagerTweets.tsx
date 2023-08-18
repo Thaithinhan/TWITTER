@@ -1,4 +1,4 @@
-import "./ManagerUser.css";
+import "./ManagerTweets.css";
 
 import React, { useEffect, useState } from "react";
 
